@@ -4,7 +4,7 @@ title: 実習6: サブワードHMM音響モデルの学習と認識
 
 # 実習6: サブワードHMM音響モデルの学習と認識
 
-## （無ければ）作業ディレクトリ等のコピーと作成
+## 6-0.（無ければ）作業ディレクトリ等のコピーと作成
 
 ~~~ bash
 $ cd ~/OUSLP/work
@@ -31,7 +31,7 @@ drwxr-xr-x 2 hara staff 4096 2013-11-29 18:27 config
 -rwxr-xr-x 1 hara staff 1228 2013-11-29 18:27 shrink_rule.pl
 ~~~
 
-## ファイルリストの作成と特徴量ファイルへの変換
+## 6-1. ファイルリストの作成と特徴量ファイルへの変換
 
 特徴量ファイルを保存するディレクトリを作成
 
@@ -55,7 +55,7 @@ $ HCopy -T 1 -C config/wav2mfcc.hconf -S hcopy.list
 ~~~
 
 
-## 初期モデルの学習
+## 6-2. 初期モデルの学習
 
 ~~~ bash
 $ mkdir -p model/seed
@@ -71,16 +71,16 @@ Updating HMM Means and Covariances
 Output written to directory model/seed
 ~~~
 
-## コンテキスト非依存（モノホン）モデルの学習
+## 6-3. コンテキスト非依存（モノホン）モデルの学習
 
-### 初期モデルを全ての音素HMMに割り振る
+### 6-3-1. 初期モデルを全ての音素HMMに割り振る
 
 ~~~ bash
 $ mkdir model/mono_{0,1,2,3}
 $ ./proto2hmmdefs.sh model/seed/proto_5states > model/mono_0/hmmdefs
 ~~~
 
-### 繰り返し学習
+### 6-3-2. 繰り返し学習
 
   * 一般にファイル数が膨大になるのでリストファイルを作ることが多い
   * ほとんどのHTKのコマンドは`-S filelist`とすることで、
@@ -106,9 +106,9 @@ $ HERest -v 0.01 -C config/train.hconf -I config/train.mlf -H model/mono_1/hmmde
 $ HERest -v 0.01 -C config/train.hconf -I config/train.mlf -H model/mono_2/hmmdefs -M model/mono_3/ config/monophones -S mfcfile.list
 ~~~
 
-## コンテキスト依存（トライホン）モデルへの変換
+## 6-4. コンテキスト依存（トライホン）モデルへの変換
 
-### ラベルファイルの変換とCorpus triphone リストの作成
+### 6-4-1. ラベルファイルの変換とCorpus triphone リストの作成
 
 ~~~ bash
 $ HLEd -T 1 -l '*' -i train_tri.mlf -n corpus_triphones config/modelTC.led config/train.mlf
@@ -117,8 +117,8 @@ $ HLEd -T 1 -l '*' -i train_tri.mlf -n corpus_triphones config/modelTC.led confi
   * `train_tri.mlf`というファイルが作られる。ラベルがtriphoneに置き換わっている。
   * `corpus_triphones`というファイルが作られる。学習データに存在するtriphoneの一覧が出力されている。
 
-Physical triphoneリストの作成（縮約規則の適用）
------------------------------------------------
+
+### 6-4-2. Physical triphoneリストの作成（縮約規則の適用）
 
 ~~~ bash
 $ perl shrink_rule.pl < corpus_triphones > physical_triphones
@@ -126,8 +126,8 @@ $ perl shrink_rule.pl < corpus_triphones > physical_triphones
 
   * 縮約規則はperlスクリプト（`shrink_rule.pl`）に置換ルールを書いてある。
 
-モデルの変換
--------------
+
+### 6-4-3. モデルの変換
 
 ~~~ bash
 $ mkdir model/tri_{0,1,2,3}
@@ -137,8 +137,7 @@ $ HHEd -T 1 -H model/mono_3/hmmdefs -w model/tri_0/hmmdefs config/mktri.hed conf
 
   * `model/tri_0/hmmdefs` にトライホンモデルが作られている。中身を確認しておくこと。
 
-繰り返し学習（-s model/stats/stat_tri_?に注意）
------------------------------------------------
+### 6-4-4. 繰り返し学習（-s model/stats/stat_tri_?に注意）
 
 ~~~ bash
 $ HERest -v 0.01 -C config/train.hconf -I train_tri.mlf -H model/tri_0/hmmdefs -M model/tri_1/ -s model/stats/stat_tri_1 physical_triphones -S mfcfile.list
@@ -152,8 +151,7 @@ $ HERest -v 0.01 -C config/train.hconf -I train_tri.mlf -H model/tri_2/hmmdefs -
 
   * `model/stats/stat_tri_3` ファイルには各状態の確率的回数が記録されている（c.f. HMMのEM学習）
 
-モデルファイルに含まれるトライホン定義の数と状態の数を確認
------------------------------------------------------------
+### 6-4-5. モデルファイルに含まれるトライホン定義の数と状態の数を確認
 
 ~~~ bash
 $ grep '<BEGINHMM>' model/tri_3/hmmdefs | wc -l
@@ -171,15 +169,14 @@ $ grep '<STATE>' model/tri_3/hmmdefs | wc -l
   * triphoneの状態共有で作成された分類木を利用する
   * この作業は混合数を挙げた後に行っても良いが、データ数が少ない場合`HHEd`の最適化処理（使われていない状態を削除する）によりエラーが起こることがあるため、この段階で実行する。
 
-現在のLogical triphonesを確認
-------------------------------
+
+### 6-4-6. 現在のLogical triphonesを確認
 
 ~~~ bash
 $ less config/all_logical_triphones
 ~~~
 
-既存のトライホンリストと追加するトライホンリストをマージ
----------------------------------------------------------
+### 6-4-7. 既存のトライホンリストと追加するトライホンリストをマージ
 
 ~~~ bash
 $ awk '{print $1}' physical_triphones config/all_logical_triphones | sort -u > new_logical_triphones
@@ -188,14 +185,15 @@ $ awk '{print $1}' physical_triphones config/all_logical_triphones | sort -u > n
   * 実際の外挿は、次の状態共有のスクリプト（`tdc.hed`）内で行われる
 
 
-## 状態共有
+## 6-5. 状態共有
+
+### 6-5-1. ディレクトリの準備
 
 ~~~ bash
 $ mkdir model/gtp_s200_m1_{0,1,2,3}
 ~~~
 
-状態共有のためのスクリプトを作成
-----------------------------------
+### 6-5-2. 状態共有のためのスクリプトを作成
 
   * 数字はしきい値で値を大きくするほど、状態数が少なくなる
 
@@ -203,8 +201,7 @@ $ mkdir model/gtp_s200_m1_{0,1,2,3}
  $ perl mktdcscript.pl 160 model/stats/stat_tri_3 > tdc.hed
 ~~~
 
-HHEd + tdc.hedによる状態共有の実行
------------------------------------
+### 6-5-3. HHEd + tdc.hedによる状態共有の実行
 
 ~~~ bash
      $ HHEd -T 1 -H model/tri_3/hmmdefs -w model/gtp_s200_m1_0/hmmdefs tdc.hed physical_triphones
@@ -236,8 +233,7 @@ $ grep '~s' model/gtp_s200_m1_0/hmmdefs | sort -u | wc -l
 最後に`~h`でHMMの定義をしているが、その中で状態や遷移行列をそれぞれ`~s`や`~t`でエイリアスをつけている。
 
 
-繰り返し学習
--------------
+### 6-5-4. 繰り返し学習
 
 ~~~ bash
 $ HERest -v 0.01 -C config/train.hconf -I train_tri.mlf -H model/gtp_s200_m1_0/hmmdefs -M model/gtp_s200_m1_1/ -s model/stats/stat_gtp_s200_m1_1 tied_triphones -S mfcfile.list
@@ -250,29 +246,27 @@ $ HERest -v 0.01 -C config/train.hconf -I train_tri.mlf -H model/gtp_s200_m1_2/h
      WARNING [-2331]  UpdateModels: a-by+u[61] copied: only 1 egs
 
 
-混合数増加（1->2）と学習
-=========================
+## 6-6. 混合数増加（1->2）と学習
+
+### 6-6-1. ディレクトリ作成
 
 ~~~ bash
 $ mkdir model/gtp_s200_m2_{0,1,2,3}
 ~~~
 
-スクリプト作成
----------------
+### 6-6-2. スクリプト作成
 
 ~~~ bash
 $ perl mkmixupscript.pl model/stats/stat_gtp_s200_m1_3 2 > mixup,2.hed
 ~~~
 
-HHEd + mixup,2.hedによる混合数増加の実行
------------------------------------------
+### 6-6-3. HHEd + mixup,2.hedによる混合数増加の実行
 
 ~~~ bash
 $ HHEd -T 3 -H model/gtp_s200_m1_3/hmmdefs -w model/gtp_s200_m2_0/hmmdefs mixup,2.hed tied_triphones
 ~~~
 
-繰り返し学習
--------------
+### 6-6-4. 繰り返し学習
 
 ~~~ bash
 $ HERest -v 0.01 -C config/train.hconf -I train_tri.mlf -H model/gtp_s200_m2_0/hmmdefs -M model/gtp_s200_m2_1/ -s model/stats/stat_gtp_s200_m2_1 tied_triphones -S mfcfile.list
@@ -283,15 +277,14 @@ $ HERest -v 0.01 -C config/train.hconf -I train_tri.mlf -H model/gtp_s200_m2_2/h
 ※ 同様にして混合数2から4へのスクリプトを作成して、繰り返し学習を行う
 
 
-数字発声認識用の辞書と文法
-===========================
+## 6-7. 数字発声認識用の辞書と文法
 
 ~~~ bash
     $ cp ../recog_digit/digit.{dic,gram} .
 ~~~
 
-辞書の修正
------------
+### 6-7-1. 辞書の修正
+
 単語HMMの場合は単語＝モデルだったが今回は単語＝ (モデル)+ である。
 文頭記号（`silB`）と文末記号（`silE`）も追加する。
 また、前後の無音が長い場合に備えて、ショートポーズ（`sp`）も追加する
@@ -315,8 +308,7 @@ $ HERest -v 0.01 -C config/train.hconf -I train_tri.mlf -H model/gtp_s200_m2_2/h
     ZERO    z e r o
 
 
-文法の修正
------------
+### 6-7-2. 文法の修正
 
 文頭記号（`silB`）と文末記号（`silE`）を追加する。
 さらに、0回以上の無音（`<sp>`）を許可することで前後の無音が長い場合に備える。
@@ -332,11 +324,9 @@ $ emacs digit.gram
 $ HParse digit.gram digit.wdnet
 ~~~
 
-数字発声の認識
-===============
+## 6-8. 数字発声の認識
 
-コンテキスト非依存（モノホン）
-------------------------------
+### 6-8-1. コンテキスト非依存（モノホン）
 
 ~~~bash
 $ HVite -T 1 -H model/mono_3/hmmdefs -w digit.wdnet -i result_mono.mlf -C config/train.hconf digit.dic config/monophones ../recog_digit/mfcc/d?-?.mfc
@@ -351,8 +341,7 @@ WORD: %Corr=72.00, Acc=72.00 [H=36, D=0, S=14, I=0, N=50]
 ===================================================================
 ~~~
 
-コンテキスト依存（トライホン） 200状態1混合
---------------------------------------------
+### 6-8-2. コンテキスト依存（トライホン） 200状態1混合
 
 ~~~bash
 $ HVite -T 1 -H model/gtp_s200_m1_3/hmmdefs -w digit.wdnet -i result_s200m1.mlf -C config/train.hconf digit.dic tied_triphones ../recog_digit/mfcc/d?-?.mfc
@@ -367,8 +356,7 @@ WORD: %Corr=94.00, Acc=94.00 [H=47, D=0, S=3, I=0, N=50]
 ===================================================================
 ~~~
 
-コンテキスト依存（トライホン） 200状態2混合
---------------------------------------------
+### 6-8-3. コンテキスト依存（トライホン） 200状態2混合
 
 ~~~bash
 $ HVite -T 1 -H model/gtp_s200_m2_3/hmmdefs -w digit.wdnet -i result_s200m2.mlf -C config/train.hconf digit.dic tied_triphones ../recog_digit/mfcc/d?-?.mfc
@@ -386,8 +374,7 @@ WORD: %Corr=98.00, Acc=98.00 [H=49, D=0, S=1, I=0, N=50]
 ※`HResults`に`-f`オプションをつけるとファイル毎の単語認識率が出力できる
 
 
-Logical triphoneを再度外挿する（おまけ）
-========================================
+## 6-9. Logical triphoneを再度外挿する（おまけ）
 
   * 認識時に利用されるtriphoneが足りない場合に行う
   * triphoneの状態共有で作成された分類木を利用する。
