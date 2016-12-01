@@ -76,8 +76,8 @@ $ emacs config/adapt.hconf
 適応のために計算される／された回帰パラメータはそれぞれ`-J`から読み込まれて，`-K`に出力される．
 オプションは以下の通り．
 
-* `-J dir [extention]` ... ディレクトリ `dir` の拡張子 `extention` から読み込む
-* `-K dir [extention]` ... ディレクトリ `dir` の拡張子 `extention` に保存する
+* `-J dir` ... ディレクトリ `dir` から適応**前**の音響モデルを読み込む．
+* `-K dir` ... ディレクトリ `dir` に適応**後**の音響モデルを保存する
 * `-u a` ... Adaptation (`a`)を行う
 
 ~~~ sh
