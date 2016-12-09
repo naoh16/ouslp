@@ -28,7 +28,9 @@ $ cp -dR ~hara/share/OUSLP2016/skel/work/mklm/* .
 
 今回はニュース5000文のテキスト`data/news5000.txt`を利用する．
 
-### 8-2-1. mecabによる形態素解析
+### 8-2-1. mecabによる形態素解析を試してみる
+
+まずは1行だけ入力して，`mecab`の動きを確認する．
 
 ~~~sh
 $ head -1 data/news5000.txt | mecab
@@ -112,7 +114,7 @@ $ ngram -lm news,gt.lm -unk -ppl news,test.txt
 `man ngram`を行うと記載されている。
 
 > Perplexity is given with two different normalizations:
-> counting all input tokens (``ppl'') and excluding end-of-sentence tags (``ppl1'').
+> counting all input tokens ("ppl") and excluding end-of-sentence tags ("ppl1").
 
 
 ### 8-3-3. その他のディスカウンティング手法でも作成
@@ -220,10 +222,8 @@ $ julius -h ../recog_shop/base_am/hmmdefs -hlist ../recog_shop/base_am/triphones
 今回は，エラーの数も少ないので先見知識を利用することにする．
 具体的には，以下の処理をおこなえばよい．
 
-    トライホンリスト（tied_triphones）から，Logical Triphone（左列）の y-u+e を探索し，
-    そのPhysical Triphone（右列）を覚えておく．
-    トライホンリストの末尾にLogical Triphone（左列）として dy-u+e を追加し，
-    そのPhysical Triphone（右列）として y-u+e を書いておく．
+  1. トライホンリスト（tied_triphones）から，Logical Triphone（左列）の y-u+e を探索し，そのPhysical Triphone（右列）を覚えておく．
+  2. トライホンリストの末尾にLogical Triphone（左列）として dy-u+e を追加し，そのPhysical Triphone（右列）として y-u+e を書いておく．
 
 最終的に，以下のような出力で止まっていたら言語モデルが正しく読み込まれているはず．
 （Ctrl+Cで強制終了できる）
