@@ -38,7 +38,7 @@ $ head -1 data/news5000.txt | mecab
 
 以下のURLの内容を見ながら，形態素解析の結果を観察する．
 
-http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html#parse
+http://taku910.github.io/mecab/index.html#parse
 
 
 ### 8-2-2. 言語モデル生成のためのデータ作成
@@ -49,14 +49,14 @@ http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html#parse
 
 `mecab`の出力フォーマット（`-O`）は以下のURLを参照のこと。
 
-* http://mecab.googlecode.com/svn/trunk/mecab/doc/format.html
-* http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html#format
+* http://taku910.github.io/mecab/format.html
+* http://taku910.github.io/mecab/index.html#format
 
     > 出力フォーマットは, ChaSen のそれと大きく異なります。 左から,
     >  表層形\t品詞,品詞細分類1,品詞細分類2,品詞細分類3,活用形,活用型,原形,読み,発音
     > となっています。
 
-~~~sh
+~~~ sh
 $ mecab --bos-format="" --eos-format="\n" --unk-format="%m+%m+%f[0]\s" --node-format="%m+%f[8]+%f[0]\s" < data/news5000.txt > news5000_morph.txt
 ~~~
 
@@ -84,7 +84,7 @@ $ tail -1000 news5000_morph.txt > news,test.txt
 
 #### Good-Turing法（GT）
 
-~~~sh
+~~~ sh
 $ ngram-count -order 3 -unk -text news,train.txt -write news.wfreq -lm news,gt.lm
 ~~~
 
@@ -99,13 +99,13 @@ $ ngram-count -order 3 -unk -text news,train.txt -write news.wfreq -lm news,gt.l
 
 #### クローズド条件
 
-~~~sh
+~~~ sh
 $ ngram -lm news,gt.lm -unk -ppl news,train.txt
 ~~~
 
 #### オープン条件
 
-~~~sh
+~~~ sh
 $ ngram -lm news,gt.lm -unk -ppl news,test.txt
 ~~~
 
@@ -121,24 +121,24 @@ $ ngram -lm news,gt.lm -unk -ppl news,test.txt
 
 #### Witten-bell法（WB）
 
-~~~sh
+~~~ sh
 $ ngram-count -order 3 -unk -wbdiscount -text news,train.txt -lm news,wb.lm
 ~~~
 
 #### Modified Kneiser-Ney法（KN）
 
-~~~sh
+~~~ sh
 $ ngram-count -order 3 -unk -kndiscount -text news,train.txt -lm news,kn.lm
 ~~~
 
 ### 8-3-4. 評価
 
-~~~sh
+~~~ sh
 $ ngram -lm news,wb.lm -unk -ppl news,train.txt
 $ ngram -lm news,kn.lm -unk -ppl news,train.txt
 ~~~
 
-~~~sh
+~~~ sh
 $ ngram -lm news,kn.lm -unk -ppl news,test.txt
 $ ngram -lm news,wb.lm -unk -ppl news,test.txt
 ~~~
@@ -156,13 +156,13 @@ $ ngram -lm news,wb.lm -unk -ppl news,test.txt
 
 `-write-vocab` オプションを使って，同時に単語リストも作成する．
 
-~~~sh
+~~~ sh
 $ ngram-count -order 2 -unk -kndiscount -text news5000_morph.txt -write-vocab news5000.vocab -lm news5000_2gram.lm
 ~~~
 
 ### 8-4-2. 逆向きコーパスを作成
 
-~~~sh
+~~~ sh
 $ perl -ane 'print join(" ", reverse(@F)),"\n"' < news5000_morph.txt > news5000_rev.txt
 ~~~
 
@@ -170,7 +170,7 @@ $ perl -ane 'print join(" ", reverse(@F)),"\n"' < news5000_morph.txt > news5000_
 
 今回3-gramを作りたいので，`N=3`とする．
 
-~~~sh
+~~~ sh
 $ ngram-count -order 3 -unk -kndiscount -text news5000_rev.txt -write-vocab news5000.vocab -lm news5000_3gram_rev.lm
 ~~~
 
@@ -186,7 +186,7 @@ $ mkbingram -nlr news5000_2gram.lm -nrl news5000_3gram_rev.lm news5000.bingram
 Juliusは圧縮したファイルも読み込めるので、gzip圧縮をかけておくとよい．
 （HDDからの読み込みオーバーヘッドが減って起動が速くなる効果もある）
 
-~~~sh
+~~~ sh
 $ gzip news5000.bingram
 ~~~
 
@@ -206,7 +206,7 @@ perl vocab2htkdic.pl < news5000.vocab > news5000.dic 2> news5000.err
 
 まずは実行してみる．
 
-~~~sh
+~~~ sh
 $ julius -h ../recog_shop/base_am/hmmdefs -hlist ../recog_shop/base_am/triphones -v news5000.dic -d news5000.bingram.gz
 ~~~
 
