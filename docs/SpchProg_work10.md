@@ -14,7 +14,7 @@ Juliusはコンパイル時点で，いくつかの認識アルゴリズムを�
 
 ### 10.1.1 julius-fastとjulius-stdをそれぞれ使ってみる
 
-実習8bを参考にして音声認識を`julius-fast`と`julius-std`のそれぞれで実行し、
+実習9を参考にして音声認識を`julius-fast`と`julius-std`のそれぞれで実行し、
 その認識率や実行速度を確認せよ。
 
 
