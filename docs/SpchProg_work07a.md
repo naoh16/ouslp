@@ -12,7 +12,10 @@ title: 実習7a: 文音声認識
 $ cd ~/OUSLP/work/recog_shop
 ~~~
 
-## 7a-1. ルールベース文法の作成
+## 7a-1. ルールベース文法の作成 (HParseを利用する場合)
+
+本節ではHTKの`HParse`を用いた手順を説明する．
+Juliusの`mkdfa.pl`を使う場合は，7a-4を参照のこと．
 
 ### 7a-1-1. 辞書の作成
 
@@ -62,8 +65,6 @@ $snt4 = NUM $V;
 $ HParse command.gram command.wdnet
 ~~~
 
-
----
 
 ## 7a-2. ルールベース文法による認識
 
@@ -133,3 +134,55 @@ $ HResults -f -I config/ref_command.mlf base_am/triphones result_cmd_base.mlf
 
 
 なお，`mlf`はMaster Label Fileの略．
+
+
+## 7a-4. 参考：Juliusを用いた文法ファイルの作成
+
+参考としてJuliusの`mkdfa.pl`を用いた文法を作成する方法を説明する．
+なお，Juliusで文法を作った場合，`HVite`で認識することはできない．
+
+HTKベースで文法認識までできているならば，この項の内容は無視してよい．
+
+#### 文法（command.grammar）の作成
+
+~~~
+S       :  NS_B FRUIT WO PLEASE NS_E
+S       :  NS_B FRUIT PLEASE NS_E
+S       :  NS_B FRUIT WO NUM PLEASE NS_E
+S       :  NS_B FRUIT WO PLEASE NS_E
+
+PLEASE  :  KUDASAI
+PLEASE  :  ONEGAI
+---
+
+#### 単語リスト（command.voca）の作成
+
+~~~
+% NS_B
+silB    []   silB
+% NS_E
+silE   []   silE
+%FRUIT
+ハクトウ      h a k u t o:
+ピオーネ      p i o: n e
+マスカット    m a s u k a q t o
+バナナ        b a n a n a
+%WO
+を    o
+%KUDASAI
+ください  k u d a s a i
+%ONEGAI
+お願いします  o n e g a i sh i m a s u
+%NUM
+一個  i q k o
+二個  n i k o
+三個  s a N k o
+四個  y o N k o
+五個  g o k o
+~~~
+
+#### コンパイル（perlが必要）
+
+~~~
+$ mkdfa.pl command
+~~~
