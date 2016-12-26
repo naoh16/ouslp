@@ -153,15 +153,15 @@ S       :  NS_B FRUIT WO PLEASE NS_E
 
 PLEASE  :  KUDASAI
 PLEASE  :  ONEGAI
----
+~~~
 
 #### 単語リスト（command.voca）の作成
 
 ~~~
 % NS_B
-silB    []   silB
+<s>   silB
 % NS_E
-silE   []   silE
+</s>  silE
 %FRUIT
 ハクトウ      h a k u t o:
 ピオーネ      p i o: n e
