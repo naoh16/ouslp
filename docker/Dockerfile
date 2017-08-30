@@ -3,13 +3,19 @@
 #   You need to download some software source cods by yourself, because of license.
 #    - HTK-3.4.1.tar.gz
 #    - HTK-samples-3.4.1.tar.gz
-#    - srilm-1.7.1.tar.gz
+#    - srilm-1.7.2.tar.gz
+#
+# Prepare:
+#  Install this file in %USERPFOILE%\Documents\OUSLP\docker
 #
 # Build:
-#  PS> docker build -t ouslp/2016 .
+#  PS> docker build -t ouslp/ouslp:2017 .
 #
-# Run:
-#  PS> docker run -it --rm -v $home/Documents:/work ouslp/2016 /bin/bash
+# Run (simple):
+#  PS> docker run -it --rm ouslp/ouslp:2017 /bin/bash
+#
+# Run (share the local storage):
+#  PS> docker run -it --rm -v $home/Documents:/work ouslp/ouslp:2017 /bin/bash
 #
 
 FROM centos:6.8
@@ -22,6 +28,7 @@ RUN yum install -y perl
 RUN yum install -y gcc gcc-c++ make
 #RUN yum install -y SDL SDL-devel
 RUN yum install -y sox
+RUN yum install -y git
 
 ENV PATH /opt/SLP/bin:$PATH
 ENV MANPATH /opt/SLP/man
@@ -29,9 +36,9 @@ ENV MANPATH /opt/SLP/man
 WORKDIR /opt/SLP/src
 
 # Install SPTK
-RUN curl -L http://downloads.sourceforge.net/sp-tk/SPTK-3.9.tar.gz -O; \
-    tar xzf SPTK-3.9.tar.gz
-RUN cd SPTK-3.9; \
+RUN curl -L http://downloads.sourceforge.net/sp-tk/SPTK-3.10.tar.gz -O; \
+    tar xzf SPTK-3.10.tar.gz
+RUN cd SPTK-3.10; \
     ./configure --prefix=/opt/SLP && make -j2 && make install
 
 # Install mecab (core and dictionary)
@@ -59,11 +66,11 @@ WORKDIR /opt/SLP/src/htk
 RUN CFLAGS=-m64 ./configure --prefix=/opt/SLP --disable-hslab --disable-hlmtools && make all && make install
 RUN cp samples/HTKDemo/MakeProtoHMMSet /opt/SLP/bin/
 
-# Install SRILM-1.7.1
-ADD srilm-1.7.1.tar.gz /opt/SLP/srilm-1.7.1
+# Install SRILM-1.7.2
+ADD srilm-1.7.2.tar.gz /opt/SLP/srilm-1.7.2
 
-WORKDIR /opt/SLP/srilm-1.7.1
-ENV SRILM /opt/SLP/srilm-1.7.1
+WORKDIR /opt/SLP/srilm-1.7.2
+ENV SRILM /opt/SLP/srilm-1.7.2
 RUN make -j2 World
 ENV PATH $SRILM/bin/x86_64:$SRILM/bin:$PATH
 ENV MANPATH $SRILM/man:$MANPATH
