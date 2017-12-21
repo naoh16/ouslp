@@ -113,7 +113,7 @@ $ perl scoring.pl align result.ref result.hyp | tee result.ali
   - 置換誤り **S**ubstitution error
 
 の4つのマークのいずれかが付けられる．
-DPマッチングをすることで，挿入誤りと削除誤りが連続していたら挿入誤りとする，
+DPマッチングをすることで，挿入誤りと削除誤りが連続していたら置換誤りとする，
 のような処理を自動的におこなっていると考えても良いだろう．
 
 #### DPマッチングの結果（result.ali）から認識精度を算出する
